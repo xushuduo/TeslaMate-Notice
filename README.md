@@ -1,4 +1,4 @@
-# TeslaMateNotice
+# TeslaMate Notice
 
 基于 [TeslaMate](https://github.com/teslamate-org/teslamate) 的车辆实时通知程序，通过监听 TeslaMate 的 PostgreSQL 数据库与 WebSocket，在行程结束、充电开始/结束、哨兵模式触发时向你的手机推送通知。同时程序还会通过高德地图 API 对地址信息进行修复，解决因 OpenStreetMap 被墙导致地址信息缺失的问题。
 
@@ -21,8 +21,8 @@
 ### 1. 将服务添加到你现有的 `docker-compose.yml`
 
 ```yaml
-teslaMateNotice:
-  image: xushuduo/teslaMateNotice:latest
+teslamate-notice:
+  image: xushuduo/teslamate-notice:latest
   restart: always
   environment:
     # TeslaMate 地址（同 compose 网络内直接填服务名）
@@ -48,13 +48,13 @@ teslaMateNotice:
 ### 2. 启动
 
 ```bash
-docker compose up -d teslaMateNotice
+docker compose up -d teslamate-notice
 ```
 
 ### 3. 查看日志
 
 ```bash
-docker compose logs -f teslaMateNotice
+docker compose logs -f teslamate-notice
 ```
 
 ---

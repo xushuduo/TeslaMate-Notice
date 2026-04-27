@@ -51,8 +51,8 @@ services:
       - mosquitto-conf:/mosquitto/config
       - mosquitto-data:/mosquitto/data
     
-  teslaMateNotice:
-    image: xushuduo/teslaMateNotice:latest
+  teslamate-notice:
+    image: xushuduo/teslamate-notice:latest
     restart: always
     environment:
       # ── TeslaMate 连接配置 ──

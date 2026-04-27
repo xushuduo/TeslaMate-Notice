@@ -6,7 +6,7 @@ on:
     tags: ['v*']
 
 env:
-  IMAGE_NAME: teslamatenotice
+  IMAGE_NAME: teslamate-notice
 
 jobs:
   build-and-push:
