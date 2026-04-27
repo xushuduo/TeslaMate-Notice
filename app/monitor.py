@@ -95,7 +95,7 @@ def run_monitor() -> None:
         current_drive_id = get_latest_drive_id()
         if current_drive_id is not None:
             if current_drive_id > latest_drive_id:
-                # logger.info("检测到新行程，当前最大行程id = %s", current_drive_id)
+                logger.info("检测到新行程，当前最大行程id = %s", current_drive_id)
                 drive = get_drive_by_id(current_drive_id)
                 if drive is not None:
                     latest_drive_id = current_drive_id
@@ -110,8 +110,8 @@ def run_monitor() -> None:
                             fix_drive_addresses(drive_data)
                 else:
                     logger.warning("drive id=%s 查询不到，跳过", current_drive_id)
-            else:
-                logger.info("无新行程，当前最大 drive id = %s", current_drive_id)
+            # else:
+            #     logger.info("无新行程，当前最大 drive id = %s", current_drive_id)
         else:
             logger.warning("查询最新 drive id 失败，%d 秒后重试…", config.POLL_INTERVAL)
         
@@ -119,7 +119,7 @@ def run_monitor() -> None:
         current_charging_completion_id = get_latest_charging_id()
         if current_charging_completion_id is not None:
             if current_charging_completion_id > latest_charging_completion_id:
-                # logger.info("检测到新充电记录，当前最大充电完成id = %s", current_charging_completion_id)
+                logger.info("检测到新充电记录，当前最大充电完成id = %s", current_charging_completion_id)
                 charging = get_charging_by_id(current_charging_completion_id)
                 if charging is not None:
                     latest_charging_completion_id = current_charging_completion_id
@@ -129,8 +129,8 @@ def run_monitor() -> None:
                     send_notification('充电完成通知', content)
                 else:
                     logger.warning("charging completion id=%s 查询不到，跳过", current_charging_completion_id)
-            else:
-                logger.info("无新充电记录，当前最大 charging completion id = %s", current_charging_completion_id)
+            # else:
+            #     logger.info("无新充电记录，当前最大 charging completion id = %s", current_charging_completion_id)
         else:
             logger.warning("查询最新 charging completion id 失败，%d 秒后重试…", config.POLL_INTERVAL)
 
@@ -139,7 +139,7 @@ def run_monitor() -> None:
         logger.info("查询最新 charging start id = %s", current_charging_start_id)
         if current_charging_start_id is not None:
             if current_charging_start_id > latest_charging_start_id:
-                # logger.info("检测到新充电中记录，当前最大充电中id = %s", current_charging_start_id)
+                logger.info("检测到新充电中记录，当前最大充电中id = %s", current_charging_start_id)
                 charging = get_charging_by_id(current_charging_start_id)
                 if charging is not None:
                     latest_charging_start_id = current_charging_start_id
@@ -149,7 +149,7 @@ def run_monitor() -> None:
                     send_notification('开始充电通知', content)
                 else:
                     logger.warning("charging start id=%s 查询不到，跳过", current_charging_start_id)
-            else:
-                logger.info("无新充电中记录，当前最大 charging start id = %s", current_charging_start_id)
+            # else:
+            #     logger.info("无新充电中记录，当前最大 charging start id = %s", current_charging_start_id)
 
 
