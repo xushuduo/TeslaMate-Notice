@@ -76,7 +76,7 @@ docker compose logs -f teslamate-notice
 | `POLL_INTERVAL` | 否 | `10` | 数据库轮询间隔（秒） |
 | `MIN_DRIVE_DISTANCE_KM` | 否 | `1.0` | 触发行程通知的最小里程（km） |
 | `MIN_DRIVE_DURATION_MIN` | 否 | `1` | 触发行程通知的最小时长（分钟） |
-| `TIMEZONE` | 否 | `Asia/Shanghai` | 时区 |
+| `TZ` | 否 | `Asia/Shanghai` | 时区 |
 | `CAR_ID` | 否 | `1` | 车辆 ID |
 | `RETRY_COUNT` | 否 | `5` | 推送失败重试次数 |
 | `RETRY_INTERVAL` | 否 | `10` | 推送重试间隔（秒） |

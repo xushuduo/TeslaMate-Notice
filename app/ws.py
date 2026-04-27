@@ -27,7 +27,7 @@ def build_join_data(join_id, phx_id, phx_session, phx_static):
                 '_csrf_token': phx_join_data['csrf_token'],
                 'baseUrl': f"http://{config.TESLAMATE_HOST}:{config.TESLAMATE_PORT}",
                 'referrer': '',
-                'tz': config.TIMEZONE,
+                'tz': config.TZ,
                 '_mounts': '0'
             }
         }
@@ -65,21 +65,31 @@ def on_message(ws, msg):
             # logger.info(f"更新最新位置：经度={latest_longitude} 纬度={latest_latitude}")
     if 'Sentry Mode recording' in msg:
         # 哨兵模式开始录制，发送通知
-        logger.info("检测到哨兵模式开始录制，发送通知...")
+        logger.info("检测到车辆哨兵模式开始录制")
         address_data = _get_address_from_api(latest_latitude, latest_longitude)
         content = '您的特斯拉哨兵模式正在录制中，请注意车辆周围环境安全。'
         if address_data is not None:
             content += f"\n地点：{address_data['name']}"
         send_notification('哨兵模式通知', content)
-    # if 'Plugged In' in msg: # 充电枪已插入
-    # if '"charging"' in msg:
-    #     # 开始充电，发送通知
-    #     logger.info("检测到充电开始，发送通知...")
-    #     address_data = _get_address_from_api(latest_latitude, latest_longitude)
-    #     content = '您的特斯拉已开始充电。'
-    #     if address_data is not None:
-    #         content += f"\n地点：{address_data['name']}"
-    #     send_notification('充电通知', content)
+    elif 'Sentry Mode' in msg:
+        logger.info("检测到车辆哨兵模式已开启")
+    elif 'Plugged In' in msg: # 充电枪已插入
+        logger.info("检测到车辆充电枪已插入")
+    elif 'Driver present' in msg: # 驾驶员在车内
+        logger.info("检测到驾驶员在车内")
+    elif 'Unlocked' in msg: # 车辆已解锁
+        logger.info("检测到车辆已解锁")
+    elif 'Locked' in msg: # 车辆已锁定
+        logger.info("检测到车辆已锁定")
+    elif 'Doors open' in msg: # 车门已打开
+        logger.info("检测到车辆车门已打开")
+    elif '"charging"' in msg: # 充电状态变为charging
+        logger.info("检测到车辆开始充电")
+        # address_data = _get_address_from_api(latest_latitude, latest_longitude)
+        # content = '您的特斯拉已开始充电。'
+        # if address_data is not None:
+        #     content += f"\n地点：{address_data['name']}"
+        # send_notification('充电通知', content)
     
 def on_error(ws, error):
     logger.error(f'TeslaMate WebSocket ERROR {error}')

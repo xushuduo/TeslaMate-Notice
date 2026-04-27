@@ -193,7 +193,7 @@ def get_drive_by_id(drive_id: int) -> Optional[dict]:
     try:
         with get_connection() as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute(sql, (config.TIMEZONE, config.CAR_ID, drive_id,))
+                cur.execute(sql, (config.TZ, config.CAR_ID, drive_id,))
                 row = cur.fetchone()
                 return dict(row) if row else None
     except psycopg2.Error as e:

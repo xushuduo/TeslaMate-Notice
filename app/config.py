@@ -39,7 +39,7 @@ class Config:
     MIN_DRIVE_DURATION_MIN: int = int(os.getenv("MIN_DRIVE_DURATION_MIN", "1"))
 
     # 时区
-    TIMEZONE: str = os.getenv("TIMEZONE", "Asia/Shanghai")
+    TZ: str = os.getenv("TZ", "Asia/Shanghai")
 
     @property
     def db_dsn(self) -> str:
