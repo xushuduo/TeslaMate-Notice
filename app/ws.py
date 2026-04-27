@@ -62,7 +62,7 @@ def on_message(ws, msg):
             location = m.group(1)
             if ',' in location:
                 latest_latitude, latest_longitude = location.split(',')
-            logger.info(f"更新最新位置：经度={latest_longitude} 纬度={latest_latitude}")
+            # logger.info(f"更新最新位置：经度={latest_longitude} 纬度={latest_latitude}")
     if 'Sentry Mode recording' in msg:
         # 哨兵模式开始录制，发送通知
         logger.info("检测到哨兵模式开始录制，发送通知...")

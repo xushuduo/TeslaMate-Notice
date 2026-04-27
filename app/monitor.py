@@ -95,7 +95,7 @@ def run_monitor() -> None:
         current_drive_id = get_latest_drive_id()
         if current_drive_id is not None:
             if current_drive_id > latest_drive_id:
-                logger.info("检测到新行程，当前最大行程id = %s", current_drive_id)
+                # logger.info("检测到新行程，当前最大行程id = %s", current_drive_id)
                 drive = get_drive_by_id(current_drive_id)
                 if drive is not None:
                     latest_drive_id = current_drive_id
@@ -119,7 +119,7 @@ def run_monitor() -> None:
         current_charging_completion_id = get_latest_charging_id()
         if current_charging_completion_id is not None:
             if current_charging_completion_id > latest_charging_completion_id:
-                logger.info("检测到新充电记录，当前最大充电完成id = %s", current_charging_completion_id)
+                # logger.info("检测到新充电记录，当前最大充电完成id = %s", current_charging_completion_id)
                 charging = get_charging_by_id(current_charging_completion_id)
                 if charging is not None:
                     latest_charging_completion_id = current_charging_completion_id
@@ -139,7 +139,7 @@ def run_monitor() -> None:
         logger.info("查询最新 charging start id = %s", current_charging_start_id)
         if current_charging_start_id is not None:
             if current_charging_start_id > latest_charging_start_id:
-                logger.info("检测到新充电中记录，当前最大充电中id = %s", current_charging_start_id)
+                # logger.info("检测到新充电中记录，当前最大充电中id = %s", current_charging_start_id)
                 charging = get_charging_by_id(current_charging_start_id)
                 if charging is not None:
                     latest_charging_start_id = current_charging_start_id
