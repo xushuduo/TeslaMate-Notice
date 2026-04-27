@@ -1,0 +1,81 @@
+version: "3"
+
+services:
+  teslamate:
+    image: teslamate/teslamate:latest
+    restart: always
+    environment:
+      - ENCRYPTION_KEY=secretkey
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS=password
+      - DATABASE_NAME=teslamate
+      - DATABASE_HOST=database
+      - MQTT_HOST=mosquitto
+    ports:
+      - 4000:4000
+    volumes:
+      - ./import:/opt/app/import
+    cap_drop:
+      - all
+
+  database:
+    image: postgres:18-trixie
+    restart: always
+    environment:
+      - POSTGRES_USER=teslamate
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=teslamate
+    volumes:
+      - teslamate-db:/var/lib/postgresql
+
+  grafana:
+    image: teslamate/grafana:latest
+    restart: always
+    environment:
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS=password
+      - DATABASE_NAME=teslamate
+      - DATABASE_HOST=database
+    ports:
+      - 3000:3000
+    volumes:
+      - teslamate-grafana-data:/var/lib/grafana
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: always
+    command: mosquitto -c /mosquitto-no-auth.conf
+    # ports:
+    #   - 1883:1883
+    volumes:
+      - mosquitto-conf:/mosquitto/config
+      - mosquitto-data:/mosquitto/data
+    
+  teslaMateNotice:
+    build: .
+    restart: always
+    environment:
+      # ── TeslaMate 连接配置 ──
+      - TESLAMATE_HOST=teslamate
+
+      # ── PostgreSQL 连接配置 ──
+      - DATABASE_HOST=database
+      - DATABASE_NAME=teslamate
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS=password
+
+      # ── 推送平台（留空则不启用） ──
+      - TETE_PUSH_API_URL= 
+      - BARK_PUSH_API_URL=
+
+      # ── 高德地图 API KEY（留空则不启用） ──
+      - AMAP_API_KEY=
+    depends_on:
+      - database
+      - teslamate
+
+volumes:
+  teslamate-db:
+  teslamate-grafana-data:
+  mosquitto-conf:
+  mosquitto-data:
