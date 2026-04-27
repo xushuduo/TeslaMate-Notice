@@ -52,7 +52,7 @@ services:
       - mosquitto-data:/mosquitto/data
     
   teslaMateNotice:
-    build: .
+    image: xushuduo/teslaMateNotice:latest
     restart: always
     environment:
       # ── TeslaMate 连接配置 ──

@@ -22,7 +22,7 @@
 
 ```yaml
 teslaMateNotice:
-  image: ghcr.io/xushuduo/teslaMateNotice:latest  # 或 build: .
+  image: xushuduo/teslaMateNotice:latest
   restart: always
   environment:
     # TeslaMate 地址（同 compose 网络内直接填服务名）
