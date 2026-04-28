@@ -31,7 +31,17 @@ def _get_address_from_api(latitude: float, longitude: float) -> dict | None:
                 if isinstance(streetNumber.get('street'), str) and isinstance(streetNumber.get('number'), str):
                     road = f"{streetNumber['street']}{streetNumber['number']}"
                 display_name = data['regeocode']['formatted_address']
-                name = display_name.replace(province, '').replace(city, '').replace(district, '').replace(township, '').replace(road, '')
+                name = display_name
+                if province:
+                    name = name.replace(province, '')
+                if city:
+                    name = name.replace(city, '')
+                if district:
+                    name = name.replace(district, '')
+                if township:
+                    name = name.replace(township, '')
+                if road:
+                    name = name.replace(road, '')
                 return {
                     'display_name': display_name,
                     'latitude': latitude,

@@ -82,11 +82,10 @@ def run_monitor() -> None:
         logger.warning("数据库未就绪或 charging_processes 表为空，%d 秒后重试…", config.POLL_INTERVAL)
         time.sleep(config.POLL_INTERVAL)
     
-    latest_charging_start_id: int = 0
-    while True:
-        latest_charging_start_id = get_latest_charging_id(True)
-        logger.info("数据库已就绪，当前最大充电中id = %s", latest_charging_start_id)
-        break
+    latest_charging_start_id = get_latest_charging_id(True)
+    if latest_charging_start_id is None:
+        latest_charging_start_id = 0
+    logger.info("数据库已就绪，当前最大充电中id = %s", latest_charging_start_id)
 
     while True:
         time.sleep(config.POLL_INTERVAL)
