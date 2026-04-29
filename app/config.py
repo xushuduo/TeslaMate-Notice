@@ -28,7 +28,7 @@ class Config:
     AMAP_API_KEY: str = os.getenv("AMAP_API_KEY", "")
 
     # 车辆 ID
-    CAR_ID: int = int(os.getenv("CAR_ID", "1"))
+    # CAR_ID: int = int(os.getenv("CAR_ID", "1"))
 
     # 轮询间隔（秒）
     POLL_INTERVAL: int = int(os.getenv("POLL_INTERVAL", "10"))

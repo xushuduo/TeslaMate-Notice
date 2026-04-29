@@ -137,7 +137,7 @@ def update_drive_address_id(drive_id: int, start_address_id: int, end_address_id
         logger.error("更新 drive id=%s 地址 id 失败: %s", drive_id, e)
         return False
 
-def get_latest_drive_id() -> Optional[int]:
+def get_latest_drive_id(car_id: int) -> Optional[int]:
     """
     查询 drives 表中当前最大的 id。
     如果表为空，返回 None。
@@ -146,14 +146,14 @@ def get_latest_drive_id() -> Optional[int]:
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(sql, (config.CAR_ID,))
+                cur.execute(sql, (car_id,))
                 row = cur.fetchone()
                 return row[0]
     except psycopg2.Error as e:
         logger.error("查询 drives 最大 id 失败: %s", e)
         return None
 
-def get_drive_by_id(drive_id: int) -> Optional[dict]:
+def get_drive_by_id(car_id: int, drive_id: int) -> Optional[dict]:
     """
     根据 id 查询单条行程记录，返回字典（字段名 → 值）。
     查询不到时返回 None。
@@ -193,14 +193,14 @@ def get_drive_by_id(drive_id: int) -> Optional[dict]:
     try:
         with get_connection() as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute(sql, (config.TZ, config.CAR_ID, drive_id,))
+                cur.execute(sql, (config.TZ, car_id, drive_id,))
                 row = cur.fetchone()
                 return dict(row) if row else None
     except psycopg2.Error as e:
         logger.error("查询 drive id=%s 失败: %s", drive_id, e)
         return None
 
-def get_latest_charging_id(in_progress: bool = False) -> Optional[int]:
+def get_latest_charging_id(car_id: int, in_progress: bool = False) -> Optional[int]:
     """
     查询 charging_processes 表中当前最大的 id。
     如果表为空，返回 None。
@@ -211,7 +211,7 @@ def get_latest_charging_id(in_progress: bool = False) -> Optional[int]:
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(sql, (config.CAR_ID,))
+                cur.execute(sql, (car_id,))
                 row = cur.fetchone()
                 return row[0]
     except psycopg2.Error as e:
