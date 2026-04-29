@@ -24,6 +24,9 @@ if __name__ == "__main__":
             threads = []
             for item in car_data[1:]:
                 car_id = item.split('"')[0]
+                if config.CAR_ID != "ALL":
+                    if str(config.CAR_ID) != car_id:
+                        continue
                 m_title = re.search(r'<p class="title is-5">(.*?)</p>', item)
                 car_title = m_title.group(1) if m_title else None
                 if not car_title:
@@ -37,8 +40,11 @@ if __name__ == "__main__":
                 t_ws.start()
                 t_monitor.start()
                 threads.extend([t_ws, t_monitor])
-            for t in threads:
-                t.join()
+            if len(threads) > 0:
+                for t in threads:
+                    t.join()
+            else:
+                logging.error("未检测到车辆信息，无法启动监控")
         else:
             logging.error("未检测到车辆信息，无法启动监控")
     else:

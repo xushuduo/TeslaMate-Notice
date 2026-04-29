@@ -27,8 +27,8 @@ class Config:
     # 高德地图 API KEY
     AMAP_API_KEY: str = os.getenv("AMAP_API_KEY", "")
 
-    # 车辆 ID
-    # CAR_ID: int = int(os.getenv("CAR_ID", "1"))
+    # 车辆 ID（如填写，则指定车辆，不填写或填写 ALL 则全部车辆监测）
+    CAR_ID: str = os.getenv("CAR_ID", "ALL")
 
     # 轮询间隔（秒）
     POLL_INTERVAL: int = int(os.getenv("POLL_INTERVAL", "10"))
