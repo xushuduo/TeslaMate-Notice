@@ -207,7 +207,8 @@ def get_latest_charging_id(car_id: int, in_progress: bool = False) -> Optional[i
     """
     sql = "SELECT MAX(id) FROM charging_processes WHERE car_id = %s AND end_date IS NOT NULL;"
     if in_progress:
-        sql = "SELECT MAX(id) FROM charging_processes WHERE car_id = %s AND end_date IS NULL AND DATE(start_date) = CURRENT_DATE;"
+        # sql = "SELECT MAX(id) FROM charging_processes WHERE car_id = %s AND end_date IS NULL AND DATE(start_date) = CURRENT_DATE;"
+        sql = "SELECT MAX(id) FROM charging_processes WHERE car_id = %s AND end_date IS NULL;"
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -276,3 +277,40 @@ def update_charging_address_id(charging_id: int, address_id: int) -> bool:
     except psycopg2.Error as e:
         logger.error("更新 charging_process id=%s 地址 id 失败: %s", charging_id, e)
         return False
+    
+def get_drive_trace_by_id(drive_id: int, count: int = 100) -> Optional[list]:
+    """
+    根据行程 id 查询该行程的轨迹点列表，返回字典列表（字段名 → 值）。
+    查询不到时返回 None。
+    """
+    sql = """
+        WITH params AS (
+            SELECT 
+                COUNT(*) AS total,
+                GREATEST(1, round(COUNT(*) / %s.0)::int) AS step
+            FROM positions
+            WHERE drive_id = %s
+        ),
+        numbered AS (
+            SELECT 
+                longitude,
+                latitude,
+                row_number() OVER (ORDER BY id) AS rn
+            FROM positions
+            WHERE drive_id = %s
+        )
+        SELECT 
+            longitude,
+            latitude
+        FROM numbered, params
+        WHERE rn %% step = 1;
+        """
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, (count, drive_id, drive_id,))
+                rows = cur.fetchall()
+                return [dict(row) for row in rows] if rows else None
+    except psycopg2.Error as e:
+        logger.error("查询 drive id=%s 轨迹失败: %s", drive_id, e)
+        return None

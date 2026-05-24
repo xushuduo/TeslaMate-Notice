@@ -1,71 +1,25 @@
 import logging
 import requests
 from app.config import config
-from app.db import *
-from app.tools import wgs84_to_gcj02
+from app.db import (
+    get_address_by_location,
+    get_address_by_id,
+    insert_address,
+    update_drive_address_id,
+    update_charging_address_id,
+)
+from app.amap_api import amap_get_address_from_api
+from app.bdmap_api import bdmap_get_address_from_api
 
 logger = logging.getLogger(__name__)
-
-def _get_address_from_api(latitude: float, longitude: float) -> dict | None:
-
-    """
-    调用高德地图 API 逆地理编码，失败返回 None
-    """
-    try:
-        fix_lng, fix_lat = wgs84_to_gcj02(float(longitude), float(latitude))
-        logger.info(f"请求高德地图 API: {fix_lat}, {fix_lng}")
-        resp = requests.get('https://restapi.amap.com/v3/geocode/regeo', params={
-            'key': config.AMAP_API_KEY,
-            'location': f'{fix_lng},{fix_lat}',
-            'extensions': 'base',
-        }, timeout=10)
-        if resp.ok:
-            data = resp.json()
-            if data.get('status') == '1' and data.get('regeocode'):
-                province = data['regeocode']['addressComponent'].get('province', '')
-                city = data['regeocode']['addressComponent'].get('city', '')
-                district = data['regeocode']['addressComponent'].get('district', '')
-                township = data['regeocode']['addressComponent'].get('township', '')
-                streetNumber = data['regeocode']['addressComponent'].get('streetNumber', {})
-                road = ''
-                if isinstance(streetNumber.get('street'), str) and isinstance(streetNumber.get('number'), str):
-                    road = f"{streetNumber['street']}{streetNumber['number']}"
-                display_name = data['regeocode']['formatted_address']
-                name = display_name
-                if province:
-                    name = name.replace(province, '')
-                if city:
-                    name = name.replace(city, '')
-                if district:
-                    name = name.replace(district, '')
-                if township:
-                    name = name.replace(township, '')
-                if road:
-                    name = name.replace(road, '')
-                return {
-                    'display_name': display_name,
-                    'latitude': latitude,
-                    'longitude': longitude,
-                    'fix_latitude': fix_lat,
-                    'fix_longitude': fix_lng,
-                    'name': name,
-                    'road': road,
-                    'township': township,
-                    'city': city,
-                    'district': district,
-                    'province': province,
-                    'raw': data['regeocode'],
-                }
-        logger.error("高德地图 API 请求失败: %s, 响应: %s", resp.status_code, resp.text[:200])
-    except requests.RequestException as e:
-        logger.error("高德地图 API 请求异常: %s", e)
-    return None
 
 def update_address_name(address_data: dict, update_data: dict, update_key_name: str) -> None:
     """
     按优先级（name > road > township > district > city > province）
     填充 update_data[update_key_name]，仅当目标字段为空时才写入。
     """
+    if address_data and 'city' in address_data and address_data['city'] and update_data:
+        update_data[update_key_name + '_city'] = address_data.get('city', '')
     if update_data.get(update_key_name):
         return
     for field in ('name', 'road', 'township', 'district', 'city', 'province'):
@@ -105,18 +59,26 @@ def _resolve_address(
             update_address_name(address_data, data, geofence_name_key)
 
     if need_new:
-        amap_data = _get_address_from_api(data[lat_key], data[lng_key])
-        if amap_data is None:
-            logger.error("高德 API 返回空，地址修复失败")
+        charging_station = False
+        if 'start_battery_level' in data and 'charge_type' in data and data['charge_type'] == '直流':
+            # 快充优先获取充电站POI
+            charging_station = True
+        map_data = None
+        if config.BAIDU_MAP_API_KEY:
+            map_data = bdmap_get_address_from_api(data[lat_key], data[lng_key], charging_station)
+        if map_data is None and config.AMAP_API_KEY:
+            map_data = amap_get_address_from_api(data[lat_key], data[lng_key], charging_station)
+        if map_data is None:
+            logger.error("地图 API 返回空，地址修复失败")
             return
-        logger.info("高德 API 返回地址信息，修复成功")
-        new_id = insert_address(amap_data)
+        logger.info("地图 API 返回地址信息，修复成功")
+        new_id = insert_address(map_data)
         data[address_id_key] = new_id
-        update_address_name(amap_data, data, geofence_name_key)
+        update_address_name(map_data, data, geofence_name_key)
 
 def fix_drive_addresses(data: dict) -> bool:
-    if not config.AMAP_API_KEY:
-        logger.warning("未配置高德地图 API KEY")
+    if not config.AMAP_API_KEY and not config.BAIDU_MAP_API_KEY:
+        logger.warning("未配置高德地图 API KEY 或百度地图 API KEY")
         if data['start_address_id']:
             address_data = get_address_by_id(data['start_address_id'])
             if address_data:
@@ -130,12 +92,13 @@ def fix_drive_addresses(data: dict) -> bool:
     logger.info("行程%s，尝试修复地址信息", data['id'])
     _resolve_address(data, 'start_latitude', 'start_longitude', 'start_address_id', 'start_geofence_name')
     _resolve_address(data, 'end_latitude', 'end_longitude', 'end_address_id', 'end_geofence_name')
+
     update_drive_address_id(data['id'], data['start_address_id'], data['end_address_id'])
     return True
 
 def fix_charging_addresses(data: dict) -> bool:
-    if not config.AMAP_API_KEY:
-        logger.warning("未配置高德地图 API KEY")
+    if not config.AMAP_API_KEY and not config.BAIDU_MAP_API_KEY:
+        logger.warning("未配置高德地图 API KEY 或百度地图 API KEY")
         if data['address_id']:
             address_data = get_address_by_id(data['address_id'])
             if address_data:
