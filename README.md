@@ -72,13 +72,14 @@ docker compose logs -f teslamate-notice
 | `DATABASE_PASS` | 是 | `password` | 数据库密码 |
 | `TETE_PUSH_API_URL` | 否 | — | TETE 推送 URL，留空不启用 |
 | `BARK_PUSH_API_URL` | 否 | — | Bark 推送 URL，留空不启用 |
+| `PUSH_DRIVE_TRACK` | 否 | `true` | 是否推送行程轨迹图(需配置Bark和百度地图AK) |
 | `BAIDU_MAP_API_KEY` | 否 | — | 百度地图 API Key，用于地址解析 |
 | `AMAP_API_KEY` | 否 | — | 高德地图 API Key，用于地址解析 |
 | `POLL_INTERVAL` | 否 | `10` | 数据库轮询间隔（秒） |
 | `MIN_DRIVE_DISTANCE_KM` | 否 | `1.0` | 触发行程通知的最小里程（km） |
 | `MIN_DRIVE_DURATION_MIN` | 否 | `1` | 触发行程通知的最小时长（分钟） |
 | `TZ` | 否 | `Asia/Shanghai` | 时区 |
-| `CAR_ID` | "" | `ALL` | 指定监测的车辆 ID（默认ALL全部车辆监测） |
+| `CAR_ID` | 否 | `ALL` | 指定监测的车辆 ID（默认ALL全部车辆监测） |
 
 ---
 
@@ -99,7 +100,7 @@ docker compose logs -f teslamate-notice
 
 `BAIDU_MAP_API_KEY`为[高德地图开放平台](https://lbs.baidu.com/apiconsole/center)的经纬度逆地理编码功能
 - 完成注册百度地图开发平台，并通过账号认证。
-- 进入“应用管理“，点击“我的应用“，点击右上角“创建应用“，应用名称输入“TeslaMateNotice“，应该类型选择“浏览器端“，Referer白名单填写“*“。
+- 进入“应用管理“，点击“我的应用“，点击右上角“创建应用“，应用名称输入“TeslaMateNotice“，应该类型选择“服务器端“，IP白名单填写“0.0.0.0/0“。
 - 创建完成应用后，复制访问应用（AK）。
 - Key参考：xWxxxxxjCxxxxxqxZxxxxxx6mxxxxxHn
 
@@ -139,7 +140,8 @@ docker compose logs -f teslamate-notice
 3. Bark推送添加分组和显示Logo
 4. 充电时实时更新电量图标（仅支持Bark推送）
 5. 行程结束后推送行程轨迹图（仅支持Bark推送，同时需要调用百度地图API）
-6. 修复 Bug
+6. 使用直流快充时推送地点将优先使用充电站名称
+7. 修复 Bug
 
 ### v1.0.1
 

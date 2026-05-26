@@ -1,5 +1,5 @@
 """
-推送通知模块：支持 TETE 和 Bark 两个平台
+推送通知模块: 支持 TETE 和 Bark 两个平台
 """
 import logging
 import requests
@@ -46,14 +46,14 @@ def tete_push(title: str, content: str) -> bool:
 def send_drive_notification(car_name: str, drive_data: dict) -> None:
     title = f'[{car_name}]行程通知'
     contents = [
-        f"时间：{drive_data['start_date_str']} | 耗时：{format_minutes(drive_data['duration_min'])} | 里程：{drive_data['distance']:.2f} km",
-        f"电量：{drive_data['start_battery_level']}% → {drive_data['end_battery_level']}% | 能耗：{drive_data['consumption_kwh_km']:.0f} Wh/km",
+        f"时间: {drive_data['start_date_str']} | 耗时: {format_minutes(drive_data['duration_min'])} | 里程: {drive_data['distance']:.2f} km",
+        f"电量: {drive_data['start_battery_level']}% → {drive_data['end_battery_level']}% | 能耗: {drive_data['consumption_kwh_km']:.0f} Wh/km",
     ]
     if drive_data['start_geofence_name'] is not None and drive_data['end_geofence_name'] is not None:
         if 'start_geofence_name_city' in drive_data and drive_data['start_geofence_name_city'] and 'end_geofence_name_city' in drive_data and drive_data['end_geofence_name_city'] and drive_data['start_geofence_name_city'] != drive_data['end_geofence_name_city']:
-            contents.append(f"路程：{drive_data['start_geofence_name_city']}·{drive_data['start_geofence_name']} → {drive_data['end_geofence_name_city']}·{drive_data['end_geofence_name']}")
+            contents.append(f"路程: {drive_data['start_geofence_name_city']}·{drive_data['start_geofence_name']} → {drive_data['end_geofence_name_city']}·{drive_data['end_geofence_name']}")
         else:
-            contents.append(f"路程：{drive_data['start_geofence_name']} → {drive_data['end_geofence_name']}")
+            contents.append(f"路程: {drive_data['start_geofence_name']} → {drive_data['end_geofence_name']}")
     content = "\n".join(contents)
     threading.Thread(target=tete_push, args=(title, content)).start()
     extras = {}
@@ -82,11 +82,11 @@ def send_drive_notification(car_name: str, drive_data: dict) -> None:
 def send_charging_completion_notification(car_name: str, charging_data: dict) -> None:
     title = f'[{car_name}]充电完成通知'
     contents = [
-        f"电量：{charging_data['start_battery_level']}% → {charging_data['end_battery_level']}% | 平均功率：{charging_data['average_power_kw']:.1f} kW",
-        f"耗时：{format_minutes(charging_data['duration_min'])} | 增加续航：{charging_data['range_added_km']:.0f} km",
+        f"电量: {charging_data['start_battery_level']}% → {charging_data['end_battery_level']}% | 平均功率: {charging_data['average_power_kw']:.1f} kW",
+        f"耗时: {format_minutes(charging_data['duration_min'])} | 增加续航: {charging_data['range_added_km']:.0f} km",
     ]
     if charging_data['geofence_name'] is not None:
-        contents.append(f"地点：{charging_data['geofence_name']}")
+        contents.append(f"地点: {charging_data['geofence_name']}")
     content = "\n".join(contents)
     threading.Thread(target=tete_push, args=(title, content)).start()
     threading.Thread(target=bark_push, args=(title, content)).start()
@@ -94,11 +94,11 @@ def send_charging_completion_notification(car_name: str, charging_data: dict) ->
 def send_charging_start_notification(car_name: str, charging_data: dict, icon: str = None) -> None:
     title = f'[{car_name}]开始充电通知'
     contents = [
-        f"起始电量：{charging_data['start_battery_level']}%",
-        f"充电类型：{charging_data['charge_type']}",
+        f"起始电量: {charging_data['start_battery_level']}%",
+        f"充电类型: {charging_data['charge_type']}",
     ]
     if charging_data['geofence_name'] is not None:
-        contents.append(f"地点：{charging_data['geofence_name']}")
+        contents.append(f"地点: {charging_data['geofence_name']}")
     content = "\n".join(contents)
     threading.Thread(target=tete_push, args=(title, content)).start()
     extras = {
