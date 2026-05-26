@@ -15,7 +15,7 @@ def bdmap_get_address_from_api(latitude: float, longitude: float, charging_stati
             'output': 'json',
             'coordtype': 'wgs84ll',
             'radius': 100,
-            'location': f'{longitude},{latitude}'
+            'location': f'{latitude},{longitude}'
         }
         if charging_station:
             params['poi_types'] = '充电站'
