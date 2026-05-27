@@ -30,20 +30,19 @@ def bdmap_get_address_from_api(latitude: float, longitude: float, charging_stati
                 city = data['result']['addressComponent'].get('city', '')
                 district = data['result']['addressComponent'].get('district', '')
                 township = data['result']['addressComponent'].get('town', '')
-                road = data['result']['addressComponent'].get('street', {})
-                display_name = data['result']['formatted_address_poi']
-                name = display_name
+                road = data['result']['addressComponent'].get('street', '')
+                display_name = data['result']['formatted_address']
+                name = ''
                 if data['result'].get('pois') and len(data['result']['pois']) > 0:
                     name = data['result']['pois'][0].get('name', name)
                 else:
-                    if province:
-                        name = name.replace(province, '')
-                    if city:
-                        name = name.replace(city, '')
-                    if district:
-                        name = name.replace(district, '')
-                    if township:
-                        name = name.replace(township, '')
+                    name = road
+                    if name == '':
+                        name = township
+                    if name == '':
+                        name = district
+                    if name == '':
+                        name = city
                 return {
                     'display_name': display_name,
                     'latitude': latitude,
