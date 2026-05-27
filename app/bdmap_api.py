@@ -23,7 +23,7 @@ def bdmap_get_address_from_api(latitude: float, longitude: float, charging_stati
         resp = requests.get('https://api.map.baidu.com/reverse_geocoding/v3/', params=params, timeout=10)
         if resp.ok:
             data = resp.json()
-            if data.get('status') == '0' and data.get('result'):
+            if data.get('status') == 0 and data.get('result'):
                 fix_lat = data['result']['location']['lat']
                 fix_lng = data['result']['location']['lng']
                 province = data['result']['addressComponent'].get('province', '')
