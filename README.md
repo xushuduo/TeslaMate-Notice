@@ -98,7 +98,7 @@ docker compose logs -f teslamate-notice
 ### 地图API KEY
 需要通过地图 API 修复地址，建议使用百度地图开发平台。
 
-`BAIDU_MAP_API_KEY`为[高德地图开放平台](https://lbs.baidu.com/apiconsole/center)的经纬度逆地理编码功能
+`BAIDU_MAP_API_KEY`为[百度地图开放平台](https://lbs.baidu.com/apiconsole/center)的经纬度逆地理编码功能
 - 完成注册百度地图开发平台，并通过账号认证。
 - 进入“应用管理“，点击“我的应用“，点击右上角“创建应用“，应用名称输入“TeslaMateNotice“，应该类型选择“服务器端“，IP白名单填写“0.0.0.0/0“。
 - 创建完成应用后，复制访问应用（AK）。
@@ -132,6 +132,13 @@ docker compose logs -f teslamate-notice
 ---
 
 ## 更新记录
+
+### v1.1.1
+
+1. 修复充电时 TETE 推送刷屏问题（每个充电会话只推送一次）
+2. 修复百度地图逆地理编码请求报错 Bug
+3. 优化百度地图逆地理编码数据解析
+4. 优化推送内容排版，防止内容溢出换行
 
 ### v1.1
 
