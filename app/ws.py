@@ -42,7 +42,7 @@ def make_on_open(join_send_data, car_name):
     return on_open
 
 def make_on_message(car_id, car_name, local_phx_join_data):
-    state = {'latest_longitude': 0, 'latest_latitude': 0}
+    state = {'latest_longitude': 0, 'latest_latitude': 0, 'tete_charging_id': None}
     car_power = ''
 
     def on_message(ws, msg):
@@ -103,18 +103,25 @@ def make_on_message(car_id, car_name, local_phx_join_data):
                 if car_power != current_charging_power:
                     logger.info(f"[{car_name}]检测到车辆正在充电电量: {current_charging_power}%")
                     car_power = current_charging_power
-                    if config.BARK_PUSH_API_URL and config.BATTERY_IMG and current_charging_power in config.BATTERY_IMG:
-                        img_str = config.BATTERY_IMG[current_charging_power]
-                        latest_charging_start_id = get_latest_charging_id(car_id, True)
-                        if latest_charging_start_id is not None:
-                            # 发送充电通知
-                            charging_data = get_charging_by_id(latest_charging_start_id)
-                            if charging_data is not None:
-                                if charging_data['address_id'] is None or charging_data['geofence_name'] is None:
-                                    # 地址修复
-                                    fix_charging_addresses(charging_data)
-                                # 推送通知
-                                send_charging_start_notification(car_name, charging_data, img_str)
+                    latest_charging_start_id = get_latest_charging_id(car_id, True)
+                    if latest_charging_start_id is not None:
+                        # 发送充电通知
+                        charging_data = get_charging_by_id(latest_charging_start_id)
+                        if charging_data is not None:
+                            if charging_data['address_id'] is None or charging_data['geofence_name'] is None:
+                                # 地址修复
+                                fix_charging_addresses(charging_data)
+                            # TETE 去重：仅当充电会话 id 变化时才推一次
+                            push_tete = state['tete_charging_id'] != latest_charging_start_id
+                            if push_tete:
+                                state['tete_charging_id'] = latest_charging_start_id
+                            # Bark 实时更新：有对应电量图标才推（覆盖同一条消息）
+                            img_str = None
+                            if config.BARK_PUSH_API_URL and config.BATTERY_IMG and current_charging_power in config.BATTERY_IMG:
+                                img_str = config.BATTERY_IMG[current_charging_power]
+                            # TETE 或 Bark 任一需要推送则调用
+                            if push_tete or img_str is not None:
+                                send_charging_start_notification(car_name, charging_data, img_str, push_tete)
 
     return on_message
     

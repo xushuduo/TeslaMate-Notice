@@ -91,7 +91,7 @@ def send_charging_completion_notification(car_name: str, charging_data: dict) ->
     threading.Thread(target=tete_push, args=(title, content)).start()
     threading.Thread(target=bark_push, args=(title, content)).start()
 
-def send_charging_start_notification(car_name: str, charging_data: dict, icon: str = None) -> None:
+def send_charging_start_notification(car_name: str, charging_data: dict, icon: str = None, push_tete: bool = True) -> None:
     title = f'[{car_name}]开始充电通知'
     contents = [
         f"起始电量: {charging_data['start_battery_level']}%",
@@ -100,7 +100,8 @@ def send_charging_start_notification(car_name: str, charging_data: dict, icon: s
     if charging_data['geofence_name'] is not None:
         contents.append(f"地点: {charging_data['geofence_name']}")
     content = "\n".join(contents)
-    threading.Thread(target=tete_push, args=(title, content)).start()
+    if push_tete:
+        threading.Thread(target=tete_push, args=(title, content)).start()
     extras = {
         'id': 'teslamate-charging-id-%d' % charging_data['id'],
         'level': 'passive'
